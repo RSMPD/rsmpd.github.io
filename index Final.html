@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Police PDA - Mobile Data Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0a0e14;
+  --bg-card: #0d1219;
+  --border: #1a2332;
+  --accent: #00d4aa;
+  --accent-dim: #00a884;
+  --danger: #ff4757;
+  --warning: #ffa502;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(0, 168, 132, 0.05) 0%, transparent 50%);
+}
+
+.hidden { display: none !important; }
+
+.container {
+  max-width: 1600px;
+  width: 98%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* LOGIN */
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 400px;
+  margin: 80px auto 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.login-card h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-card .subtitle {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-bottom: 32px;
+}
+
+.login-card label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.login-card button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border: none;
+  border-radius: 8px;
+  color: var(--bg-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.login-card button:hover { opacity: 0.9; }
+
+.login-error {
+  text-align: center;
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+/* PDA HEADER */
+.pda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pda-header h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.pda-header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pda-header .rank-badge {
+  background: rgba(0, 212, 170, 0.2);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pda-header .rank-badge.dev { background: rgba(255, 71, 87, 0.2); color: var(--danger); }
+
+.logout-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.logout-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* NAV TABS */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.nav-tabs button {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.nav-tabs button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nav-tabs button.active {
+  background: rgba(0, 212, 170, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.card h3 {
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* LISTS */
+.list-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--bg-dark);
+}
+
+.list-item.wanted { border-left: 4px solid var(--danger); }
+.list-item.arrested { border-left: 4px solid var(--warning); }
+.list-item.past { border-left: 4px solid var(--text-dim); opacity: 0.85; }
+
+.list-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.list-item-header strong {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.list-item-meta {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+.list-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* COUNTDOWN */
+.countdown-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(0, 212, 170, 0.12);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  border-radius: 8px;
+  margin: 10px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.countdown-box.expiring { background: rgba(255, 167, 2, 0.15); border-color: var(--warning); color: var(--warning); }
+.countdown-box.expired { background: rgba(255, 71, 87, 0.15); border-color: var(--danger); color: var(--danger); }
+
+.countdown-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-right: 4px; }
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-chip .value { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.stat-chip .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; }
+
+/* CARD LAYOUT - RICHER */
+.list-item.arrested .list-item-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.list-item .info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.list-item .info-tag {
+  background: rgba(255,255,255,0.05);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--text-dim);
+}
+
+/* FORMS */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.form-group input[type="file"] {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.form-group input[type="file"]::file-selector-button {
+  padding: 6px 12px;
+  margin-right: 12px;
+  background: var(--border);
+  border: none;
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.attachment-preview {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.attachment-link {
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.attachment-link:hover { text-decoration: underline; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+/* BUTTONS */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn:hover { opacity: 0.9; }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-dark);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+/* SEARCH */
+.search-box {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+input, select, textarea {
+  background: var(--bg-dark) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+input::placeholder, textarea::placeholder { color: var(--text-dim); opacity: 0.8; }
+select option { background: var(--bg-dark); color: var(--text); }
+
+/* ADMIN / DEV PANEL */
+.admin-section {
+  margin-bottom: 32px;
+}
+
+.admin-section h3 {
+  margin-bottom: 16px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.users-table th {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.users-table .actions { white-space: nowrap; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h3 { margin-bottom: 20px; }
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-actions .btn { flex: 1; }
+
+/* LOADING SCREEN */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  gap: 24px;
+}
+
+.loading-overlay .logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.loading-overlay .spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-overlay .text {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-bar-inner {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  animation: loadBar 2.5s ease-out forwards;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes loadBar { to { width: 100%; } }
+
+/* DUTY STATUS */
+.duty-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.duty-btn {
+  padding: 12px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.duty-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.duty-btn.active {
+  background: rgba(0, 212, 170, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.duty-btn.on { background: rgba(0, 212, 170, 0.2); }
+.duty-btn.off { background: rgba(139, 148, 158, 0.15); }
+.duty-btn.break { background: rgba(255, 167, 2, 0.15); }
+.duty-btn.patrol { background: rgba(0, 168, 132, 0.2); }
+.duty-btn.station { background: rgba(100, 149, 237, 0.15); }
+
+.roster-list { display: grid; gap: 10px; }
+.roster-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.roster-item .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+.roster-item .status-dot.on { background: var(--accent); }
+.roster-item .status-dot.off { background: var(--text-dim); }
+.roster-item .status-dot.break { background: var(--warning); }
+.roster-item .status-dot.patrol { background: #00a884; }
+.roster-item .status-dot.station { background: #6495ed; }
+
+/* NEWS PAGE */
+.news-hero {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(255, 167, 2, 0.1));
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.news-hero h4 { color: var(--danger); margin-bottom: 16px; font-size: 1.1rem; }
+.feed-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.feed-item:last-child { border-bottom: none; }
+.bulletin-card { margin-bottom: 16px; padding: 16px; background: var(--bg-dark); border-radius: 8px; border-left: 4px solid var(--accent); }
+
+/* LIGHT MODE */
+body.light-mode { --bg-dark: #f0f2f5; --bg-card: #fff; --border: #e1e4e8; --text: #24292f; --text-dim: #57606a; background-image: none; background: var(--bg-dark); }
+
+/* GLOBAL SEARCH */
+.global-search { max-width: 320px; margin-left: auto; }
+.global-search input { padding: 10px 14px; width: 100%; border-radius: 8px; font-size: 0.9rem; }
+.global-search-results { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; max-height: 300px; overflow-y: auto; z-index: 100; }
+
+/* ADMIN SECTIONS */
+.admin-subnav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.admin-subnav button { padding: 8px 14px; font-size: 0.85rem; }
+.admin-subnav button.active { background: rgba(0, 212, 170, 0.15); border-color: var(--accent); color: var(--accent); }
+
+/* TAGS */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin: 2px; }
+.tag-violent { background: rgba(255,71,87,0.2); color: var(--danger); }
+.tag-drugs { background: rgba(255,167,2,0.2); color: var(--warning); }
+.tag-gang { background: rgba(128,0,128,0.2); color: #c77; }
+
+/* STATS GRID */
+.stats-grid-large { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; margin-bottom: 32px; }
+.stat-card-big { background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,212,170,0.08) 100%); border: 1px solid var(--border); border-radius: 16px; padding: 28px; text-align: center; }
+.stat-card-big .stat-value { display: block; font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.stat-card-big .stat-label { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-top-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.stat-rank { font-family: 'JetBrains Mono'; font-weight: 700; color: var(--accent); min-width: 32px; }
+.stat-name { flex: 1; }
+.stat-count { color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" class="loading-overlay hidden">
+  <div class="logo">POLICE PDA</div>
+  <div class="spinner"></div>
+  <div class="text">Accessing secure terminal...</div>
+  <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginView" class="login-card container">
+  <h1>POLICE PDA</h1>
+  <p class="subtitle">Mobile Data Terminal — Secure Access</p>
+  <label>Username</label>
+  <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
+  <label>Password</label>
+  <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+  <button onclick="handleLogin()">LOGIN</button>
+  <p id="loginError" class="login-error hidden"></p>
+</div>
+
+<!-- PDA MAIN -->
+<div id="pdaView" class="container hidden">
+  <div class="pda-header">
+    <h2 id="headerTitle">POLICE PDA</h2>
+    <div class="user-info" style="flex-wrap:wrap;gap:10px">
+      <div style="position:relative" class="global-search">
+        <input type="text" id="globalSearch" placeholder="Search..." class="search-box" style="margin-bottom:0" oninput="doGlobalSearch()" onfocus="doGlobalSearch()">
+        <div id="globalSearchResults" class="global-search-results hidden"></div>
+      </div>
+      <button class="logout-btn" onclick="toggleTheme()" title="Toggle dark/light">Theme</button>
+      <span class="rank-badge" id="rankBadge">Officer</span>
+      <span id="displayName">Officer</span>
+      <span id="myUnitBadge" class="info-tag hidden" style="background:rgba(0,212,170,0.2)"></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="active" data-tab="dashboard">Dashboard</button>
+    <button data-tab="news">News</button>
+    <button data-tab="duty">Duty</button>
+    <button data-tab="arrested">Arrested</button>
+    <button data-tab="pastArrested">Past Arrests</button>
+    <button data-tab="wanted">Wanted</button>
+    <button data-tab="vehicles">Vehicles</button>
+    <button data-tab="incidents">Incidents</button>
+    <button data-tab="notes">Notes</button>
+    <button data-tab="radio">Radio</button>
+    <button data-tab="stats">Stats</button>
+    <button data-tab="admin" id="navAdmin" class="hidden">Admin</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tabDashboard">
+    <div class="stats-bar">
+      <div class="stat-chip"><span class="value" id="statArrested">0</span><span class="label">In Custody</span></div>
+      <div class="stat-chip"><span class="value" id="statWanted">0</span><span class="label">Wanted</span></div>
+      <div class="stat-chip"><span class="value" id="statPast">0</span><span class="label">Past Arrests</span></div>
+      <div class="stat-chip"><span class="value" id="statOnDuty">0</span><span class="label">On Duty</span></div>
+    </div>
+    <div class="card">
+      <h3>System Status</h3>
+      <p style="color: var(--text-dim);">Police PDA is online. All units connected.</p>
+    </div>
+    <div class="card">
+      <h3>Recent Activity</h3>
+      <div id="activityFeed"></div>
+    </div>
+    <div class="card bulletin-card">
+      <h3>Bulletin Board</h3>
+      <div id="bulletinList"></div>
+    </div>
+    <div class="card">
+      <h3>BOLO — Be On Lookout</h3>
+      <div id="boloList"></div>
+    </div>
+  </div>
+
+  <!-- NEWS -->
+  <div id="tabNews" class="hidden">
+    <div class="news-hero">
+      <h4>MOST WANTED</h4>
+      <div id="newsMostWanted"></div>
+    </div>
+    <div class="card">
+      <h3>Wanted List — Full</h3>
+      <div id="newsWantedList"></div>
+    </div>
+    <div class="card">
+      <h3>Recent Arrests</h3>
+      <div id="newsRecentArrests"></div>
+    </div>
+  </div>
+
+  <!-- DUTY STATUS -->
+  <div id="tabDuty" class="hidden">
+    <div class="card">
+      <h3>Your Status</h3>
+      <div class="duty-buttons">
+        <button class="duty-btn on" data-status="On Duty" onclick="setDutyStatus('On Duty')">On Duty</button>
+        <button class="duty-btn off" data-status="Off Duty" onclick="setDutyStatus('Off Duty')">Off Duty</button>
+        <button class="duty-btn break" data-status="Civilian Break" onclick="setDutyStatus('Civilian Break')">Civilian Break</button>
+        <button class="duty-btn patrol" data-status="In Patrol" onclick="setDutyStatus('In Patrol')">In Patrol</button>
+        <button class="duty-btn station" data-status="At Station" onclick="setDutyStatus('At Station')">At Station</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Unit Roster — Who&apos;s Online</h3>
+      <div class="roster-list" id="rosterList"></div>
+    </div>
+  </div>
+
+  <!-- ARRESTED -->
+  <div id="tabArrested" class="hidden">
+    <div class="stats-bar" id="arrestedStatsBar">
+      <div class="stat-chip"><span class="value" id="statInCustody">0</span><span class="label">In Custody</span></div>
+      <div class="stat-chip"><span class="value" id="statExpiring">0</span><span class="label">Expiring Soon</span></div>
+    </div>
+    <div class="card">
+      <h3>Currently Arrested</h3>
+      <input type="text" class="search-box" id="searchArrested" placeholder="Search by name..." oninput="filterArrested()">
+      <button class="btn btn-primary" onclick="showAddArrestModal()">+ Add Arrest</button>
+      <div id="arrestedList" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- PAST ARRESTED -->
+  <div id="tabPastArrested" class="hidden">
+    <div class="stats-bar">
+      <div class="stat-chip"><span class="value" id="statPastCount">0</span><span class="label">Total Records</span></div>
+    </div>
+    <div class="card">
+      <h3>Past Arrests (History)</h3>
+      <input type="text" class="search-box" id="searchPast" placeholder="Search by name..." oninput="filterPastArrested()">
+      <div id="pastArrestedList" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- WANTED -->
+  <div id="tabWanted" class="hidden">
+    <div class="stats-bar">
+      <div class="stat-chip"><span class="value" id="statMostWanted">0</span><span class="label">Most Wanted</span></div>
+      <div class="stat-chip"><span class="value" id="statWantedCount">0</span><span class="label">All Wanted</span></div>
+    </div>
+    <div class="card">
+      <h3>Most Wanted</h3>
+      <div id="mostWantedList" style="margin-top: 16px;"></div>
+    </div>
+    <div class="card">
+      <h3>Wanted List (All)</h3>
+      <input type="text" class="search-box" id="searchWanted" placeholder="Search by name..." oninput="filterWanted()">
+      <select id="wantedFilterSeverity" class="search-box" onchange="filterWanted()" style="max-width:200px;margin-bottom:12px;margin-top:0">
+        <option value="">All Severities</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+        <option value="Critical">Critical</option>
+      </select>
+      <button class="btn btn-primary" id="btnAddWanted" onclick="showAddWantedModal()">+ Add to Wanted</button>
+      <div id="wantedList" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- VEHICLES -->
+  <div id="tabVehicles" class="hidden">
+    <div class="card">
+      <h3>Vehicle Database</h3>
+      <input type="text" class="search-box" id="searchVehicles" placeholder="Search by plate..." oninput="filterVehicles()">
+      <button class="btn btn-primary" onclick="showAddVehicleModal()">+ Add Vehicle</button>
+      <div id="vehicleList" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- INCIDENTS -->
+  <div id="tabIncidents" class="hidden">
+    <div class="card">
+      <h3>Incident Reports</h3>
+      <button class="btn btn-primary" onclick="showAddIncidentModal()">+ New Incident</button>
+      <div id="incidentList" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="tabNotes" class="hidden">
+    <div class="card">
+      <h3>Private Notes (only you see)</h3>
+      <textarea id="userNotesPrivate" rows="8" placeholder="Your personal notes..." style="margin-bottom:12px" onchange="saveUserNotes()"></textarea>
+      <button class="btn btn-primary" onclick="saveUserNotes()">Save Private</button>
+    </div>
+    <div class="card">
+      <h3>Public Notes (visible to all officers)</h3>
+      <div id="publicNotesList"></div>
+      <textarea id="userNotesPublic" rows="4" placeholder="Add a public note..." style="margin-top:12px;margin-bottom:12px"></textarea>
+      <button class="btn btn-primary" onclick="addPublicNote()">Add Public Note</button>
+    </div>
+  </div>
+
+  <!-- RADIO CODES -->
+  <div id="tabRadio" class="hidden">
+    <div class="card">
+      <h3>Radio Codes Quick Reference</h3>
+      <div id="radioCodesList"></div>
+    </div>
+  </div>
+
+  <!-- STATISTICS -->
+  <div id="tabStats" class="hidden">
+    <div class="stats-grid-large">
+      <div class="stat-card-big"><span class="stat-value" id="statCardArrested">0</span><span class="stat-label">In Custody</span></div>
+      <div class="stat-card-big"><span class="stat-value" id="statCardPast">0</span><span class="stat-label">Past Arrests</span></div>
+      <div class="stat-card-big"><span class="stat-value" id="statCardWanted">0</span><span class="stat-label">Wanted</span></div>
+      <div class="stat-card-big"><span class="stat-value" id="statCardMostWanted">0</span><span class="stat-label">Most Wanted</span></div>
+      <div class="stat-card-big"><span class="stat-value" id="statCardVehicles">0</span><span class="stat-label">Vehicles</span></div>
+      <div class="stat-card-big"><span class="stat-value" id="statCardIncidents">0</span><span class="stat-label">Incidents</span></div>
+    </div>
+    <div class="card">
+      <h3>Top Officers by Arrests</h3>
+      <div id="statsTopOfficers"></div>
+    </div>
+    <div class="card">
+      <h3>Overview</h3>
+      <div id="statsContent"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN (DEV ONLY) -->
+  <div id="tabAdmin" class="hidden">
+    <div class="admin-subnav">
+      <button class="btn btn-secondary" data-admin="users" onclick="showAdminSection('users')">Users</button>
+      <button class="btn btn-secondary" data-admin="settings" onclick="showAdminSection('settings')">Settings</button>
+      <button class="btn btn-secondary" data-admin="bulletins" onclick="showAdminSection('bulletins')">Bulletins</button>
+      <button class="btn btn-secondary" data-admin="bolo" onclick="showAdminSection('bolo')">BOLO</button>
+      <button class="btn btn-secondary" data-admin="charges" onclick="showAdminSection('charges')">Charge Templates</button>
+      <button class="btn btn-secondary" data-admin="arrestreasons" onclick="showAdminSection('arrestreasons')">Arrest Reasons</button>
+      <button class="btn btn-secondary" data-admin="backup" onclick="showAdminSection('backup')">Backup</button>
+      <button class="btn btn-secondary" data-admin="activity" onclick="showAdminSection('activity')">Full Log</button>
+      <button class="btn btn-secondary" data-admin="presetcars" onclick="showAdminSection('presetcars')">Preset Cars</button>
+      <button class="btn btn-secondary" data-admin="password" onclick="showAdminSection('password')">Change Dev PW</button>
+    </div>
+    <div id="adminUsers" class="card admin-section">
+      <h3>User Management</h3>
+      <button class="btn btn-primary" onclick="showAddUserModal()">+ Create Account</button>
+      <table class="users-table" style="margin-top: 20px;"><thead><tr><th>Username</th><th>Full Name</th><th>Rank</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table>
+    </div>
+    <div id="adminSettings" class="card admin-section hidden">
+      <h3>System Settings</h3>
+      <div class="form-group"><label>Department Name</label><input type="text" id="settingDeptName" placeholder="e.g. LSPD"></div>
+      <div class="form-group"><label>Default Arrest Duration (min)</label><input type="number" id="settingDefaultDuration" min="1" value="5"></div>
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+    </div>
+    <div id="adminBulletins" class="card admin-section hidden">
+      <h3>Bulletin Management</h3>
+      <button class="btn btn-primary" onclick="showAddBulletinModal()">+ Add Bulletin</button>
+      <div id="adminBulletinList" style="margin-top:16px"></div>
+    </div>
+    <div id="adminBolo" class="card admin-section hidden">
+      <h3>BOLO Management</h3>
+      <button class="btn btn-primary" onclick="showAddBoloModal()">+ Add BOLO</button>
+      <div id="adminBoloList" style="margin-top:16px"></div>
+    </div>
+    <div id="adminCharges" class="card admin-section hidden">
+      <h3>Charge Templates</h3>
+      <button class="btn btn-primary" onclick="showAddChargeModal()">+ Add Charge</button>
+      <div id="adminChargeList" style="margin-top:16px"></div>
+    </div>
+    <div id="adminBackup" class="card admin-section hidden">
+      <h3>Backup & Restore</h3>
+      <button class="btn btn-primary" onclick="exportData()">Export Backup</button>
+      <label style="display:block;margin-top:12px">Import: <input type="file" id="importFile" accept=".json" onchange="importData()"></label>
+      <button class="btn btn-danger" style="margin-top:12px" onclick="resetAllData()">Reset All Data</button>
+    </div>
+    <div id="adminActivity" class="card admin-section hidden">
+      <h3>Full Log — All Activity &amp; Access (IP tracked)</h3>
+      <button class="btn btn-secondary btn-sm" onclick="exportLog()">Export Log</button>
+      <div id="activityLogList" style="max-height:500px;overflow-y:auto;margin-top:16px"></div>
+    </div>
+    <div id="adminPresetcars" class="card admin-section hidden">
+      <h3>Preset Cars — Assign to Officers</h3>
+      <button class="btn btn-primary" onclick="showAddPresetCarModal()">+ Add Preset Car</button>
+      <div id="presetCarsList" style="margin-top:16px"></div>
+      <h4 style="margin-top:24px">Assign Cars to Officers</h4>
+      <div id="assignCarsList"></div>
+    </div>
+    <div id="adminPassword" class="card admin-section hidden">
+      <h3>Change Dev Password</h3>
+      <div class="form-group"><label>New Password</label><input type="password" id="newDevPassword" placeholder="•••••••"></div>
+      <button class="btn btn-primary" onclick="changeDevPassword()">Change</button>
+    </div>
+    <div id="adminArrestreasons" class="card admin-section hidden">
+      <h3>Arrest Reason Templates</h3>
+      <button class="btn btn-primary" onclick="showAddArrestReasonModal()">+ Add Reason</button>
+      <div id="adminArrestReasonsList" style="margin-top:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Arrest -->
+<div id="modalAddArrest" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Create Arrest</h3>
+    <div class="form-group">
+      <label>Person</label>
+      <input type="text" id="arrestPerson" placeholder="Full name of arrested person">
+    </div>
+    <div class="form-group">
+      <label>Reason</label>
+      <select id="arrestReasonPreset" onchange="updateArrestReason()" style="margin-bottom:8px">
+        <option value="">Select preset reason...</option>
+        <option value="custom">-- Custom Reason --</option>
+      </select>
+      <textarea id="arrestReason" rows="3" placeholder="Charges / reason for arrest..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" id="arrestLocation" placeholder="Arrest location">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Severity</label>
+        <select id="arrestSeverity">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <input type="number" id="arrestDuration" placeholder="e.g. 5" min="1" value="5">
+        <span class="attachment-preview">Arrest for this many minutes. Auto-release prompt when timer ends.</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="arrestNotes" rows="2" placeholder="Additional notes..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Attachment</label>
+      <input type="file" id="arrestAttachment" accept="image/*,.pdf,.doc,.docx" onchange="updateAttachmentPreview()">
+      <div class="attachment-preview" id="attachmentPreview"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddArrest')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitArrest()">Add Arrest</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Release Arrest (move to past) -->
+<div id="modalReleaseArrest" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Release / Close Arrest</h3>
+    <p id="releaseConfirmText" style="color: var(--text-dim); margin-bottom: 16px;"></p>
+    <div class="form-group">
+      <label>Release Notes (optional)</label>
+      <input type="text" id="releaseNotes" placeholder="e.g. Released on bail">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="dismissReleaseModal()">Cancel (snooze 2 min)</button>
+      <button class="btn btn-primary" onclick="confirmRelease()">Move to Past Arrests</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Wanted -->
+<div id="modalAddWanted" class="modal-overlay hidden">
+  <div class="modal" style="max-width:520px">
+    <h3>Add to Wanted List</h3>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="wantedName" placeholder="Full name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Severity</label>
+        <select id="wantedSeverity">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Most Wanted</label>
+        <select id="wantedMostWanted">
+          <option value="0">No — Regular Wanted</option>
+          <option value="1">Yes — Most Wanted</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Details / Charges</label>
+      <textarea id="wantedDetails" rows="2" placeholder="Description, charges..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Last Seen</label>
+      <input type="text" id="wantedLastSeen" placeholder="Location, time">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Reward ($)</label>
+        <input type="text" id="wantedReward" placeholder="Optional">
+      </div>
+      <div class="form-group">
+        <label>Known Associates</label>
+        <input type="text" id="wantedAssociates" placeholder="Names">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tags</label>
+      <input type="text" id="wantedTags" placeholder="e.g. violent, drugs, gang">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddWanted')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitWanted()">Add to Wanted</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Vehicle -->
+<div id="modalAddVehicle" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add Vehicle</h3>
+    <div class="form-group"><label>Plate</label><input type="text" id="vehiclePlate" placeholder="License plate"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Make</label><input type="text" id="vehicleMake"></div>
+      <div class="form-group"><label>Model</label><input type="text" id="vehicleModel"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Color</label><input type="text" id="vehicleColor"></div>
+      <div class="form-group"><label>Status</label><select id="vehicleStatus"><option>Stolen</option><option>Suspect</option><option>BOLO</option><option>Recovered</option></select></div>
+    </div>
+    <div class="form-group"><label>Notes</label><input type="text" id="vehicleNotes"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddVehicle')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitVehicle()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Incident -->
+<div id="modalAddIncident" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>New Incident</h3>
+    <div class="form-group"><label>Type</label><select id="incidentType"><option>Traffic Stop</option><option>Domestic</option><option>Suspicious Activity</option><option>Assault</option><option>Theft</option><option>Drugs</option><option>Other</option></select></div>
+    <div class="form-group"><label>Location</label><input type="text" id="incidentLocation"></div>
+    <div class="form-group"><label>Description</label><textarea id="incidentDesc" rows="3"></textarea></div>
+    <div class="form-group"><label>Status</label><select id="incidentStatus"><option>Open</option><option>Pending</option><option>Closed</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddIncident')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitIncident()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Bulletin -->
+<div id="modalAddBulletin" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add Bulletin</h3>
+    <div class="form-group"><label>Title</label><input type="text" id="bulletinTitle"></div>
+    <div class="form-group"><label>Text</label><textarea id="bulletinText" rows="3"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddBulletin')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBulletin()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add BOLO -->
+<div id="modalAddBolo" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add BOLO</h3>
+    <div class="form-group"><label>Name / Description</label><input type="text" id="boloName"></div>
+    <div class="form-group"><label>Details</label><textarea id="boloDetails" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddBolo')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBolo()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Charge -->
+<div id="modalAddCharge" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add Charge Template</h3>
+    <div class="form-group"><label>Charge Name</label><input type="text" id="chargeName" placeholder="e.g. Assault"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddCharge')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCharge()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Preset Car -->
+<div id="modalAddPresetCar" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add Preset Car</h3>
+    <div class="form-group"><label>Plate</label><input type="text" id="presetPlate" placeholder="License plate"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Make</label><input type="text" id="presetMake"></div>
+      <div class="form-group"><label>Model</label><input type="text" id="presetModel"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Color</label><input type="text" id="presetColor"></div>
+      <div class="form-group"><label>Unit #</label><input type="text" id="presetUnit" placeholder="e.g. 12"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddPresetCar')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPresetCar()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Edit User -->
+<div id="modalAddUser" class="modal-overlay hidden">
+  <div class="modal">
+    <h3 id="modalUserTitle">Create Account</h3>
+    <div class="form-group">
+      <label>Username (login)</label>
+      <input type="text" id="newUserUsername" placeholder="e.g. officer.smith">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="newUserPassword" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="newUserName" placeholder="e.g. John Smith">
+    </div>
+    <div class="form-group">
+      <label>Rank</label>
+      <select id="newUserRank">
+        <option value="Officer">Officer</option>
+        <option value="Sergeant">Sergeant</option>
+        <option value="Assistant Chief">Assistant Chief</option>
+        <option value="Chief">Chief</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddUser')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Arrest Reason -->
+<div id="modalAddArrestReason" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Add Arrest Reason</h3>
+    <div class="form-group"><label>Reason Name</label><input type="text" id="arrestReasonName" placeholder="e.g. Assault"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAddArrestReason')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitArrestReason()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RANKS = ['Officer', 'Sergeant', 'Assistant Chief', 'Chief'];
+const DEV_USER = 'dev';
+const DEV_PASS_HASH = '6f3cb51c38bc5231439187f6ee7ba6ce0b988bba5a4e59019862ca7599fca8d9';
+
+// Login handler function - must be defined early for HTML onclick
+function handleLogin() {
+  if (typeof doLogin === 'function') {
+    doLogin().catch(err => console.error('Login error:', err));
+  } else {
+    console.error('doLogin function not found');
+  }
+}
+
+function storageKey(k) { return 'police_pda_' + k; }
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getUsers() {
+  const raw = localStorage.getItem(storageKey('users'));
+  if (!raw) {
+    const defaultUsers = {
+      [DEV_USER]: { username: DEV_USER, passwordHash: DEV_PASS_HASH, name: 'Developer', rank: 'Dev' }
+    };
+    localStorage.setItem(storageKey('users'), JSON.stringify(defaultUsers));
+    return defaultUsers;
+  }
+  const users = JSON.parse(raw);
+  if (users[DEV_USER] && !users[DEV_USER].passwordHash && users[DEV_USER].password) {
+    users[DEV_USER].passwordHash = DEV_PASS_HASH;
+    delete users[DEV_USER].password;
+    localStorage.setItem(storageKey('users'), JSON.stringify(users));
+  }
+  return users;
+}
+
+function saveUsers(users) {
+  localStorage.setItem(storageKey('users'), JSON.stringify(users));
+}
+
+function getArrested() {
+  return JSON.parse(localStorage.getItem(storageKey('arrested')) || '[]');
+}
+
+function saveArrested(arr) {
+  localStorage.setItem(storageKey('arrested'), JSON.stringify(arr));
+}
+
+function getPastArrested() {
+  return JSON.parse(localStorage.getItem(storageKey('pastArrested')) || '[]');
+}
+
+function savePastArrested(arr) {
+  localStorage.setItem(storageKey('pastArrested'), JSON.stringify(arr));
+}
+
+function getWanted() {
+  return JSON.parse(localStorage.getItem(storageKey('wanted')) || '[]');
+}
+
+function saveWanted(arr) {
+  localStorage.setItem(storageKey('wanted'), JSON.stringify(arr));
+}
+
+function getDutyStatus() {
+  return JSON.parse(localStorage.getItem(storageKey('dutyStatus')) || '{}');
+}
+
+function saveDutyStatus(obj) {
+  localStorage.setItem(storageKey('dutyStatus'), JSON.stringify(obj));
+}
+
+function getBulletins() {
+  const def = [
+    { id: 1, title: 'Shift change 06:00–14:00', date: new Date().toISOString().slice(0,10), text: 'Standard rotation in effect.' },
+    { id: 2, title: 'New SOP: Arrest documentation', date: new Date().toISOString().slice(0,10), text: 'All arrests must include reason, location, and severity.' }
+  ];
+  const raw = localStorage.getItem(storageKey('bulletins'));
+  return raw ? JSON.parse(raw) : def;
+}
+function saveBulletins(arr) { localStorage.setItem(storageKey('bulletins'), JSON.stringify(arr)); }
+
+function getBolo() {
+  const raw = localStorage.getItem(storageKey('bolo'));
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveBolo(arr) {
+  localStorage.setItem(storageKey('bolo'), JSON.stringify(arr));
+}
+
+function getVehicles() { return JSON.parse(localStorage.getItem(storageKey('vehicles')) || '[]'); }
+function saveVehicles(arr) { localStorage.setItem(storageKey('vehicles'), JSON.stringify(arr)); }
+function getIncidents() { return JSON.parse(localStorage.getItem(storageKey('incidents')) || '[]'); }
+function saveIncidents(arr) { localStorage.setItem(storageKey('incidents'), JSON.stringify(arr)); }
+function getChargeTemplates() {
+  const def = ['Assault', 'Theft', 'Drug Possession', 'DUI', 'Reckless Driving', 'Resisting Arrest'];
+  const raw = localStorage.getItem(storageKey('chargeTemplates'));
+  return raw ? JSON.parse(raw) : def;
+}
+function saveChargeTemplates(arr) { localStorage.setItem(storageKey('chargeTemplates'), JSON.stringify(arr)); }
+function getSettings() {
+  const raw = localStorage.getItem(storageKey('settings'));
+  return raw ? JSON.parse(raw) : { deptName: 'Police PDA', defaultDuration: 5 };
+}
+function saveSettingsData(s) { localStorage.setItem(storageKey('settings'), JSON.stringify(s)); }
+function getArrestReasons() {
+  const def = ['Assault', 'Theft', 'Drug Possession', 'DUI', 'Reckless Driving', 'Resisting Arrest', 'Vandalism', 'Trespassing', 'Domestic Violence', 'Weapon Possession'];
+  const raw = localStorage.getItem(storageKey('arrestReasons'));
+  return raw ? JSON.parse(raw) : def;
+}
+function saveArrestReasons(arr) { localStorage.setItem(storageKey('arrestReasons'), JSON.stringify(arr)); }
+function getActivityLog() { return JSON.parse(localStorage.getItem(storageKey('activityLog')) || '[]'); }
+function addActivityLog(action, details, ip) {
+  const log = getActivityLog();
+  log.unshift({ action, details, user: currentUser ? currentUser.name : '?', username: currentUser ? currentUser.username : '?', date: new Date().toISOString(), ip: ip || null });
+  if (log.length > 1000) log.pop();
+  localStorage.setItem(storageKey('activityLog'), JSON.stringify(log));
+}
+async function fetchIP() { 
+  // Try client-side detection first
+  const clientIP = await getClientIP();
+  if (clientIP && clientIP !== 'unknown') {
+    console.log(`IP detected client-side: ${clientIP}`);
+    return clientIP;
+  }
+  
+  const ipServices = [
+    'https://api.ipify.org?format=json',
+    'https://api.ipgeolocation.io/ipjson',
+    'https://ipapi.co/json/',
+    'https://ipinfo.io/json'
+  ];
+  
+  for (const service of ipServices) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout per service
+      
+      const r = await fetch(service, { 
+        signal: controller.signal,
+        mode: 'cors'
+      }); 
+      
+      clearTimeout(timeoutId);
+      
+      if (!r.ok) continue; // Try next service
+      
+      const d = await r.json();
+      const ip = d.ip || d.ip_address || d.query || 'unknown';
+      if (ip && ip !== 'unknown') {
+        console.log(`IP fetched successfully from ${service}: ${ip}`);
+        return ip;
+      }
+    } catch(e) { 
+      console.warn(`Failed to fetch IP from ${service}:`, e.message);
+      continue; // Try next service
+    }
+  }
+  
+  // All services failed, but we still want to log the attempt
+  console.warn('All IP services failed, using fallback detection');
+  return 'unknown'; 
+}
+
+async function getClientIP() {
+  try {
+    // Method 1: Advanced WebRTC with multiple STUN servers
+    const rtcIP = await getWebRTCAdvanced();
+    if (rtcIP && rtcIP !== 'unknown') {
+      console.log(`Advanced WebRTC IP detected: ${rtcIP}`);
+      return rtcIP;
+    }
+    
+    // Method 2: Multiple external services with different techniques
+    const externalIP = await getExternalIPAdvanced();
+    if (externalIP && externalIP !== 'unknown') {
+      console.log(`External service IP detected: ${externalIP}`);
+      return externalIP;
+    }
+    
+    // Method 3: DNS-based detection
+    const dnsIP = await getDNSBasedIP();
+    if (dnsIP && dnsIP !== 'unknown') {
+      console.log(`DNS-based IP detected: ${dnsIP}`);
+      return dnsIP;
+    }
+    
+    // Method 4: Browser fingerprinting + IP correlation
+    const fingerprintIP = await getFingerprintBasedIP();
+    if (fingerprintIP && fingerprintIP !== 'unknown') {
+      console.log(`Fingerprint-based IP detected: ${fingerprintIP}`);
+      return fingerprintIP;
+    }
+    
+    // Method 5: WebSocket-based detection
+    const wsIP = await getWebSocketIP();
+    if (wsIP && wsIP !== 'unknown') {
+      console.log(`WebSocket IP detected: ${wsIP}`);
+      return wsIP;
+    }
+    
+    console.warn('All advanced IP detection methods failed, using fallback');
+    return 'unknown';
+  } catch (e) {
+    console.warn('Advanced IP detection failed:', e);
+    return 'unknown';
+  }
+}
+
+async function getWebRTCAdvanced() {
+  return new Promise((resolve) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        // Add more STUN servers to make detection harder to block
+        { urls: 'stun:stun.stunprotocol.org:3478' },
+        { urls: 'stun:stun.stunprotocol.org:5349' }
+      ]
+    });
+    
+    pc.createDataChannel('');
+    pc.createOffer().then(offer => pc.setLocalDescription(offer));
+    
+    pc.onicecandidate = (ice) => {
+      if (ice && ice.candidate && ice.candidate.candidate) {
+        const candidate = ice.candidate.candidate;
+        const match = candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (match) {
+          const ip = match[1];
+          // Filter out local IPs more aggressively
+          if (!ip.startsWith('192.168.') && !ip.startsWith('10.') && !ip.startsWith('172.') && 
+              !ip.startsWith('127.') && !ip.startsWith('169.254.') && !ip.startsWith('100.') && 
+              !ip.startsWith('198.18.') && !ip.startsWith('203.0.') && !ip.startsWith('204.') && 
+              !ip.startsWith('224.') && !ip.startsWith('240.') && !ip.startsWith('255.')) {
+            resolve(ip);
+          }
+        }
+      }
+    };
+    
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      pc.close();
+      resolve('unknown');
+    }, 5000);
+  });
+}
+
+async function getExternalIPAdvanced() {
+  const services = [
+    { name: 'ipify', url: 'https://api.ipify.org?format=json', method: 'GET' },
+    { name: 'ipapi', url: 'https://ipapi.co/json/', method: 'GET' },
+    { name: 'ipinfo', url: 'https://ipinfo.io/json/', method: 'GET' },
+    { name: 'freegeoip', url: 'https://freegeoip.app/api/json/', method: 'GET' },
+    { name: 'ipdata', url: 'https://api.ipdata.co/json/', method: 'GET' },
+    { name: 'jsonip', url: 'https://jsonip.com/api/ip', method: 'GET' }
+  ];
+  
+  for (const service of services) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      
+      const response = await fetch(service.url, {
+        signal: controller.signal,
+        method: service.method,
+        mode: 'cors',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const ip = data.ip || data.ip_address || data.query || 'unknown';
+        if (ip && ip !== 'unknown') {
+          console.log(`IP detected via ${service.name}: ${ip}`);
+          return ip;
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to fetch IP from ${service.name}:`, e.message);
+    }
+  }
+  
+  return 'unknown';
+}
+
+async function getDNSBasedIP() {
+  try {
+    // Use DNS to resolve a domain that might reveal IP
+    const domains = ['myexternalip.com', 'checkip.amazonaws.com', 'ipinfo.io'];
+    
+    for (const domain of domains) {
+      try {
+        const response = await fetch(`https://${domain}/api/json/`, {
+          mode: 'cors',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.IPv4 && data.IPv4 !== 'unknown') {
+            console.log(`DNS-based IP detected: ${data.IPv4}`);
+            return data.IPv4;
+          }
+        }
+      } catch (e) {
+        console.warn(`DNS service ${domain} failed:`, e.message);
+      }
+    }
+  } catch (e) {
+    console.warn('DNS-based IP detection failed:', e);
+  }
+  
+  return 'unknown';
+}
+
+async function getFingerprintBasedIP() {
+  try {
+    // Create a unique fingerprint and correlate with known IPs
+    const fingerprint = generateBrowserFingerprint();
+    
+    // Try to correlate with known IP patterns
+    const patterns = [
+      { pattern: 'Mozilla/5.0', ip: 'unknown' },
+      { pattern: 'Chrome/91.0', ip: 'unknown' },
+      { pattern: 'Safari/14.1', ip: 'unknown' }
+    ];
+    
+    // This is more for demonstration - in reality, this would need a backend service
+    return 'unknown';
+  } catch (e) {
+    console.warn('Fingerprint-based IP detection failed:', e);
+    return 'unknown';
+  }
+}
+
+async function getWebSocketIP() {
+  try {
+    // Connect to a WebSocket echo service to detect public IP
+    const ws = new WebSocket('wss://echo.websocket.org');
+    
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        ws.close();
+        resolve('unknown');
+      }, 3000);
+      
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ action: 'getIP' }));
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.ip && data.ip !== 'unknown') {
+            console.log(`WebSocket IP detected: ${data.ip}`);
+            resolve(data.ip);
+            ws.close();
+          }
+        } catch (e) {
+          console.warn('WebSocket message parsing failed:', e);
+        }
+      };
+      
+      ws.onerror = (error) => {
+        console.warn('WebSocket IP detection failed:', error);
+      };
+    });
+  } catch (e) {
+    console.warn('WebSocket IP detection failed:', e);
+    return 'unknown';
+  }
+}
+
+function generateBrowserFingerprint() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Draw random pattern to create unique fingerprint
+  ctx.textBaseline = 'top';
+  ctx.font = '14px Arial';
+  ctx.fillStyle = '#f60';
+  ctx.fillRect(10, 10, 100, 100);
+  
+  // Get canvas data as base64
+  const fingerprint = canvas.toDataURL();
+  return fingerprint;
+}
+
+function getUserNotes() {
+  if (!currentUser) return '';
+  const key = storageKey('notes_private_' + currentUser.username);
+  let v = localStorage.getItem(key);
+  if (!v && localStorage.getItem(storageKey('notes_' + currentUser.username))) v = localStorage.getItem(storageKey('notes_' + currentUser.username));
+  return v ? JSON.parse(v) : '';
+}
+function saveUserNotesData() {
+  if (!currentUser) return;
+  const notes = document.getElementById('userNotesPrivate');
+  if (notes) localStorage.setItem(storageKey('notes_private_' + currentUser.username), JSON.stringify(notes.value));
+}
+function getPublicNotes() { return JSON.parse(localStorage.getItem(storageKey('publicNotes')) || '[]'); }
+function savePublicNotes(arr) { localStorage.setItem(storageKey('publicNotes'), JSON.stringify(arr)); }
+function getPresetCars() { return JSON.parse(localStorage.getItem(storageKey('presetCars')) || '[]'); }
+function savePresetCars(arr) { localStorage.setItem(storageKey('presetCars'), JSON.stringify(arr)); }
+function getOfficerCarAssignments() { return JSON.parse(localStorage.getItem(storageKey('officerCars')) || '{}'); }
+function saveOfficerCarAssignments(obj) { localStorage.setItem(storageKey('officerCars'), JSON.stringify(obj)); }
+function getTheme() { return localStorage.getItem(storageKey('theme')) || 'dark'; }
+function setTheme(t) { localStorage.setItem(storageKey('theme'), t); document.body.classList.toggle('light-mode', t === 'light'); }
+
+let currentUser = null;
+let releaseIndex = null;
+let countdownInterval = null;
+
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+
+  // Clear previous errors
+  err.classList.add('hidden');
+  
+  // Input validation
+  if (!user || user.length < 2) {
+    err.textContent = 'Username must be at least 2 characters';
+    err.classList.remove('hidden');
+    return;
+  }
+  
+  if (!pass || pass.length < 4) {
+    err.textContent = 'Password must be at least 4 characters';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  const users = getUsers();
+  const u = users[user.toLowerCase()];
+
+  if (!u) {
+    err.textContent = 'ACCESS DENIED';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  let valid = false;
+  if (u.passwordHash) {
+    const hash = await sha256(pass);
+    valid = u.passwordHash === hash;
+  } else if (u.password) {
+    valid = u.password === pass;
+  }
+
+  if (!valid) {
+    err.textContent = 'ACCESS DENIED';
+    err.classList.remove('hidden');
+    
+    // Log failed login attempt
+    addActivityLog('Failed login attempt', `Username: ${user.toLowerCase()}`, 'unknown');
+    return;
+  }
+
+  err.classList.add('hidden');
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('loadingScreen').classList.remove('hidden');
+
+  await new Promise(r => setTimeout(r, 2500));
+
+  // Try to get IP, but don't fail login if it fails
+  let ip = null;
+  try {
+    ip = await fetchIP();
+  } catch (error) {
+    console.warn('Could not fetch IP address, continuing without it:', error);
+    ip = 'unknown';
+  }
+
+  currentUser = { ...u, username: user.toLowerCase() };
+  document.getElementById('loadingScreen').classList.add('hidden');
+  document.getElementById('pdaView').classList.remove('hidden');
+
+  document.getElementById('displayName').textContent = currentUser.name;
+  const badge = document.getElementById('rankBadge');
+  badge.textContent = currentUser.rank;
+  badge.className = 'rank-badge' + (currentUser.rank === 'Dev' ? ' dev' : '');
+
+  if (currentUser.rank === 'Dev') {
+    document.getElementById('navAdmin').classList.remove('hidden');
+  } else {
+    document.getElementById('navAdmin').classList.add('hidden');
+  }
+
+  const canAddWanted = ['Dev', 'Chief', 'Assistant Chief', 'Sergeant'].includes(currentUser.rank);
+  document.getElementById('btnAddWanted').style.display = canAddWanted ? 'inline-block' : 'none';
+
+  const myStatus = getDutyStatus()[currentUser.username] || 'Off Duty';
+  setDutyStatus(myStatus);
+  setTheme(getTheme());
+  document.body.classList.toggle('light-mode', getTheme() === 'light');
+  const s = getSettings();
+  const t = document.getElementById('headerTitle');
+  if (t) t.textContent = s.deptName || 'POLICE PDA';
+  const assignments = getOfficerCarAssignments();
+  const myCar = assignments[currentUser.username];
+  const unitBadge = document.getElementById('myUnitBadge');
+  if (unitBadge) { unitBadge.textContent = myCar ? 'Unit: ' + myCar : ''; unitBadge.classList.toggle('hidden', !myCar); }
+  switchTab('dashboard');
+  renderAll();
+  startCountdownTimer();
+  addActivityLog('Login', currentUser.name + ' (' + currentUser.username + ') accessed PDA', ip);
+}
+
+function logout() {
+  currentUser = null;
+  stopCountdownTimer();
+  document.getElementById('loginView').classList.remove('hidden');
+  document.getElementById('pdaView').classList.add('hidden');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+function startCountdownTimer() {
+  stopCountdownTimer();
+  countdownInterval = setInterval(() => {
+    checkExpiredArrests();
+    renderArrested();
+    updateArrestedStats();
+  }, 1000);
+}
+
+function stopCountdownTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = null;
+}
+
+function getRemainingSeconds(arrest) {
+  const releaseAt = arrest.releaseAt;
+  if (!releaseAt) return null;
+  const now = Date.now();
+  return Math.max(0, Math.floor((releaseAt - now) / 1000));
+}
+
+function formatCountdown(seconds) {
+  if (seconds === null) return null;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function checkExpiredArrests() {
+  if (!currentUser) return;
+  const modal = document.getElementById('modalReleaseArrest');
+  if (!modal.classList.contains('hidden')) return;
+  const arr = getArrested();
+  const now = Date.now();
+  const idx = arr.findIndex(a => {
+    if (!a.releaseAt) return false;
+    if (a.releaseDismissedUntil && now < a.releaseDismissedUntil) return false;
+    return a.releaseAt <= now;
+  });
+  if (idx >= 0) {
+    stopCountdownTimer();
+    showReleaseModal(idx, true);
+  }
+}
+
+document.querySelectorAll('.nav-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    if (tab) switchTab(tab);
+  });
+});
+
+function switchTab(tab) {
+  // Hide all tabs first
+  const tabs = ['dashboard', 'news', 'duty', 'arrested', 'pastArrested', 'wanted', 'vehicles', 'incidents', 'notes', 'radio', 'stats', 'admin'];
+  tabs.forEach(tabName => {
+    const element = document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    if (element) element.classList.add('hidden');
+  });
+
+  // Update nav buttons
+  document.querySelectorAll('.nav-tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+
+  // Show selected tab
+  const selectedTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (selectedTab) selectedTab.classList.remove('hidden');
+
+  // Tab-specific initialization
+  try {
+    if (tab === 'dashboard') { updateStats(); renderActivityFeed(); renderBulletins(); renderBolo(); }
+    if (tab === 'news') renderNews();
+    if (tab === 'duty') renderRoster();
+    if (tab === 'arrested') { renderArrested(); updateArrestedStats(); }
+    if (tab === 'pastArrested') { renderPastArrested(); const el = document.getElementById('statPastCount'); if (el) el.textContent = getPastArrested().length; }
+    if (tab === 'wanted') { renderWanted(); updateWantedStats(); }
+    if (tab === 'vehicles') renderVehicles();
+    if (tab === 'incidents') renderIncidents();
+    if (tab === 'notes') { const n = document.getElementById('userNotesPrivate'); if (n) n.value = getUserNotes(); renderPublicNotes(); }
+    if (tab === 'radio') renderRadioCodes();
+    if (tab === 'stats') renderStatistics();
+    if (tab === 'admin') showAdminSection('users');
+  } catch (error) {
+    console.error('Error initializing tab:', tab, error);
+  }
+}
+
+function renderAll() {
+  renderArrested();
+  renderPastArrested();
+  renderWanted();
+  updateStats();
+  renderRoster();
+  renderActivityFeed();
+  renderBulletins();
+  renderBolo();
+}
+
+function updateStats() {
+  document.getElementById('statArrested').textContent = getArrested().length;
+  document.getElementById('statWanted').textContent = getWanted().length;
+  if (document.getElementById('statMostWanted')) document.getElementById('statMostWanted').textContent = getWanted().filter(w => w.mostWanted).length;
+  if (document.getElementById('statWantedCount')) document.getElementById('statWantedCount').textContent = getWanted().length;
+  document.getElementById('statPast').textContent = getPastArrested().length;
+  const duty = getDutyStatus();
+  const onDuty = Object.values(duty).filter(s => s === 'On Duty' || s === 'In Patrol' || s === 'At Station').length;
+  const el = document.getElementById('statOnDuty');
+  if (el) el.textContent = onDuty;
+}
+
+function setDutyStatus(status) {
+  if (!currentUser) return;
+  const duty = getDutyStatus();
+  duty[currentUser.username] = status;
+  saveDutyStatus(duty);
+  document.querySelectorAll('.duty-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.status === status);
+  });
+  updateStats();
+  renderRoster();
+}
+
+function renderRoster() {
+  const users = getUsers();
+  const duty = getDutyStatus();
+  const roster = Object.values(users).map(u => ({
+    ...u,
+    status: duty[u.username] || 'Off Duty'
+  })).sort((a,b) => (b.status !== 'Off Duty' ? 1 : 0) - (a.status !== 'Off Duty' ? 1 : 0));
+  const el = document.getElementById('rosterList');
+  if (!el) return;
+  const clsMap = { 'On Duty': 'on', 'Off Duty': 'off', 'Civilian Break': 'break', 'In Patrol': 'patrol', 'At Station': 'station' };
+  el.innerHTML = roster.map(u => {
+    const cls = clsMap[u.status] || 'off';
+    return `<div class="roster-item">
+      <span><span class="status-dot ${cls}"></span><strong>${escapeHtml(u.name)}</strong> <span class="info-tag">${escapeHtml(u.rank)}</span></span>
+      <span class="info-tag">${escapeHtml(u.status)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderNews() {
+  const wanted = getWanted();
+  const mostWanted = wanted.filter(w => w.mostWanted);
+  const el1 = document.getElementById('newsMostWanted');
+  const el2 = document.getElementById('newsWantedList');
+  const el3 = document.getElementById('newsRecentArrests');
+  if (el1) el1.innerHTML = mostWanted.length ? mostWanted.map(w => `<div class="feed-item"><strong>${escapeHtml(w.name)}</strong> — ${escapeHtml(w.details || 'No details')} ${w.severity ? '[' + escapeHtml(w.severity) + ']' : ''}</div>`).join('') : '<div class="empty-state">No most wanted on file</div>';
+  if (el2) el2.innerHTML = wanted.length ? wanted.map(w => `<div class="list-item wanted"><strong>${escapeHtml(w.name)}</strong><div class="list-item-meta">${escapeHtml(w.details || '-')} — ${escapeHtml(w.severity || '-')}</div></div>`).join('') : '<div class="empty-state">No wanted persons</div>';
+  const recent = getArrested().slice(0, 5).concat(getPastArrested().slice(0, 3));
+  if (el3) el3.innerHTML = recent.length ? recent.map(a => `<div class="feed-item">${escapeHtml(a.person || a.name)} — ${escapeHtml(a.reason || a.charges || '-')} · ${formatDate(a.date)}</div>`).join('') : '<div class="empty-state">No recent arrests</div>';
+}
+
+function renderBulletins() {
+  const bulletins = getBulletins();
+  const el = document.getElementById('bulletinList');
+  if (!el) return;
+  el.innerHTML = bulletins.map(b => `<div class="bulletin-card"><strong>${escapeHtml(b.title)}</strong><br><span class="list-item-meta">${escapeHtml(b.date)}</span><br>${escapeHtml(b.text)}</div>`).join('');
+}
+
+function renderBolo() {
+  const bolo = getBolo();
+  const wanted = getWanted();
+  const combined = bolo.length ? bolo : wanted.slice(0, 3).map(w => ({ name: w.name, details: w.details }));
+  const el = document.getElementById('boloList');
+  if (!el) return;
+  el.innerHTML = combined.length ? combined.map(b => `<div class="feed-item"><strong>${escapeHtml(b.name || b)}</strong> — ${escapeHtml(typeof b === 'object' ? (b.details || '') : '')}</div>`).join('') : '<div class="empty-state">No active BOLOs. All clear.</div>';
+}
+
+function renderActivityFeed() {
+  const arrested = getArrested();
+  const past = getPastArrested().slice(0, 5);
+  const items = [
+    ...arrested.map(a => ({ type: 'arrest', text: (a.person || a.name) + ' arrested', date: a.date })),
+    ...past.map(a => ({ type: 'release', text: (a.person || a.name) + ' released', date: a.releasedAt || a.date }))
+  ].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+  const el = document.getElementById('activityFeed');
+  if (!el) return;
+  el.innerHTML = items.length ? items.map(i => `<div class="feed-item"><span class="info-tag">${i.type}</span> ${escapeHtml(i.text)} · ${formatDate(i.date)}</div>`).join('') : '<div class="empty-state">No recent activity</div>';
+}
+
+function updateArrestedStats() {
+  const arr = getArrested();
+  let expiring = 0;
+  arr.forEach(a => {
+    const sec = getRemainingSeconds(a);
+    if (sec !== null && sec > 0 && sec <= 60) expiring++;
+  });
+  const inCustodyEl = document.getElementById('statInCustody');
+  const expiringEl = document.getElementById('statExpiring');
+  if (inCustodyEl) inCustodyEl.textContent = arr.length;
+  if (expiringEl) expiringEl.textContent = expiring;
+}
+
+function showAddArrestModal() {
+  document.getElementById('arrestPerson').value = '';
+  document.getElementById('arrestReason').value = '';
+  document.getElementById('arrestLocation').value = '';
+  document.getElementById('arrestSeverity').value = 'Medium';
+  document.getElementById('arrestDuration').value = '5';
+  document.getElementById('arrestNotes').value = '';
+  document.getElementById('arrestAttachment').value = '';
+  document.getElementById('attachmentPreview').textContent = '';
+  
+  // Populate arrest reasons dropdown
+  const reasons = getArrestReasons();
+  const dropdown = document.getElementById('arrestReasonPreset');
+  dropdown.innerHTML = '<option value="">Select preset reason...</option><option value="custom">-- Custom Reason --</option>' + 
+    reasons.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  
+  document.getElementById('modalAddArrest').classList.remove('hidden');
+}
+
+function updateArrestReason() {
+  const dropdown = document.getElementById('arrestReasonPreset');
+  const textarea = document.getElementById('arrestReason');
+  
+  if (dropdown.value === 'custom') {
+    textarea.value = '';
+    textarea.style.display = 'block';
+    dropdown.style.marginBottom = '8px';
+  } else if (dropdown.value) {
+    textarea.value = dropdown.value;
+    textarea.style.display = 'block';
+    dropdown.style.marginBottom = '8px';
+  } else {
+    textarea.value = '';
+    textarea.style.display = 'block';
+    dropdown.style.marginBottom = '8px';
+  }
+}
+
+function updateAttachmentPreview() {
+  const input = document.getElementById('arrestAttachment');
+  const preview = document.getElementById('attachmentPreview');
+  if (input.files && input.files[0]) {
+    const f = input.files[0];
+    preview.textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+    if (f.size > 300 * 1024) preview.textContent += ' — max 300 KB';
+  } else preview.textContent = '';
+}
+
+function submitArrest() {
+  const person = document.getElementById('arrestPerson').value.trim();
+  const reason = document.getElementById('arrestReason').value.trim();
+  const location = document.getElementById('arrestLocation').value.trim();
+  const severity = document.getElementById('arrestSeverity').value;
+  const durationMin = parseInt(document.getElementById('arrestDuration').value, 10) || 5;
+  const notes = document.getElementById('arrestNotes').value.trim();
+
+  if (!person) return alert('Enter person name');
+  if (durationMin < 1) return alert('Duration must be at least 1 minute');
+
+  const date = new Date();
+  const releaseAt = date.getTime() + durationMin * 60000;
+
+  const newArrest = {
+    id: Date.now(),
+    person, reason, location, severity, durationMinutes: durationMin, notes,
+    attachment: null,
+    attachmentName: null,
+    arrestedBy: currentUser.name,
+    date: date.toISOString(),
+    releaseAt
+  };
+
+  const doSave = () => {
+    const arr = getArrested();
+    arr.push(newArrest);
+    saveArrested(arr);
+    closeModal('modalAddArrest');
+    renderArrested();
+    updateStats();
+  };
+
+  const fileInput = document.getElementById('arrestAttachment');
+  if (fileInput.files && fileInput.files[0]) {
+    const f = fileInput.files[0];
+    if (f.size > 300 * 1024) return alert('Attachment max 300 KB');
+    const reader = new FileReader();
+    reader.onload = function() {
+      newArrest.attachment = reader.result;
+      newArrest.attachmentName = f.name;
+      doSave();
+    };
+    reader.readAsDataURL(f);
+    return;
+  }
+  doSave();
+}
+
+function showReleaseModal(i, isAutoExpired) {
+  releaseIndex = i;
+  const arr = getArrested();
+  const a = arr[i];
+  const name = a.person || a.name;
+  document.getElementById('releaseConfirmText').textContent = isAutoExpired
+    ? name + ' — Time\'s up! Add release notes and move to Past Arrests.'
+    : 'Move "' + name + '" to Past Arrests? They will appear in the history list.';
+  document.getElementById('releaseNotes').value = '';
+  document.getElementById('modalReleaseArrest').classList.remove('hidden');
+}
+
+function dismissReleaseModal() {
+  if (releaseIndex !== null) {
+    const arr = getArrested();
+    if (arr[releaseIndex]) {
+      arr[releaseIndex].releaseDismissedUntil = Date.now() + 2 * 60000;
+      saveArrested(arr);
+    }
+  }
+  releaseIndex = null;
+  closeModal('modalReleaseArrest');
+  startCountdownTimer();
+}
+
+function confirmRelease() {
+  if (releaseIndex === null) return;
+  const arr = getArrested();
+  const released = arr.splice(releaseIndex, 1)[0];
+  released.releaseNotes = document.getElementById('releaseNotes').value.trim();
+  released.releasedAt = new Date().toISOString();
+  released.releasedBy = currentUser.name;
+
+  const past = getPastArrested();
+  past.unshift(released);
+  savePastArrested(past);
+  saveArrested(arr);
+
+  releaseIndex = null;
+  closeModal('modalReleaseArrest');
+  renderArrested();
+  renderPastArrested();
+  updateStats();
+  startCountdownTimer();
+}
+
+function filterArrested() {
+  renderArrested(document.getElementById('searchArrested').value);
+}
+
+function renderArrested(filter = '') {
+  const arr = getArrested();
+  const q = filter.toLowerCase();
+  const getName = a => (a.person || a.name || '').toLowerCase();
+  const filtered = q ? arr.filter(a => getName(a).includes(q)) : arr;
+
+  const el = document.getElementById('arrestedList');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state">No arrests in custody. Click "Add Arrest" to log someone.</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map((a, i) => {
+    const idx = arr.indexOf(a);
+    const name = a.person || a.name;
+    const reason = a.reason || a.charges;
+    const sec = getRemainingSeconds(a);
+    let countdownHtml = '';
+    if (sec !== null) {
+      const cls = sec === 0 ? 'expired' : (sec <= 60 ? 'expiring' : '');
+      countdownHtml = '<div class="countdown-box ' + cls + '"><span class="countdown-label">Time left</span><span class="countdown-value">' + (sec === 0 ? '0:00 — Release due!' : formatCountdown(sec)) + '</span></div>';
+    } else if (a.duration || a.durationMinutes) {
+      const dur = a.durationMinutes ? a.durationMinutes + ' min' : a.duration;
+      countdownHtml = '<div class="countdown-box" style="opacity:0.8"><span class="countdown-label">Duration</span><span>' + escapeHtml(dur) + '</span></div>';
+    }
+    const tags = [];
+    if (a.location) tags.push('<span class="info-tag">📍 ' + escapeHtml(a.location) + '</span>');
+    if (a.severity) tags.push('<span class="info-tag">' + escapeHtml(a.severity) + '</span>');
+    if (a.arrestedBy) tags.push('<span class="info-tag">By ' + escapeHtml(a.arrestedBy) + '</span>');
+    tags.push('<span class="info-tag">' + formatDate(a.date) + '</span>');
+    const attHtml = a.attachment && a.attachmentName
+      ? '<a class="attachment-link" href="' + a.attachment + '" target="_blank" download="' + escapeHtml(a.attachmentName) + '">📎 ' + escapeHtml(a.attachmentName) + '</a>'
+      : '';
+    return `
+    <div class="list-item arrested">
+      <div class="list-item-header">
+        <strong>${escapeHtml(name)}</strong>
+        ${a.severity ? '<span style="color:var(--warning);font-size:0.8rem">' + escapeHtml(a.severity) + '</span>' : ''}
+      </div>
+      <div>${escapeHtml(reason || '-')}</div>
+      ${countdownHtml}
+      <div class="info-row">${tags.join('')}</div>
+      ${a.notes ? '<div class="list-item-meta">' + escapeHtml(a.notes) + '</div>' : ''}
+      ${attHtml ? '<div class="list-item-meta">' + attHtml + '</div>' : ''}
+      <div class="list-item-actions">
+        <button class="btn btn-primary btn-sm" onclick="showReleaseModal(${idx})">Release / Close</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterPastArrested() {
+  renderPastArrested(document.getElementById('searchPast').value);
+}
+
+function renderPastArrested(filter = '') {
+  const arr = getPastArrested();
+  const q = filter.toLowerCase();
+  const getName = a => (a.person || a.name || '').toLowerCase();
+  const filtered = q ? arr.filter(a => getName(a).includes(q)) : arr;
+
+  const el = document.getElementById('pastArrestedList');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state">No past arrests on record</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(a => {
+    const name = a.person || a.name;
+    const reason = a.reason || a.charges;
+    const tags = [];
+    if (a.location) tags.push('<span class="info-tag">📍 ' + escapeHtml(a.location) + '</span>');
+    if (a.severity) tags.push('<span class="info-tag">' + escapeHtml(a.severity) + '</span>');
+    tags.push('<span class="info-tag">Arrested ' + formatDate(a.date) + '</span>');
+    tags.push('<span class="info-tag">Released ' + formatDate(a.releasedAt) + '</span>');
+    if (a.releaseNotes) tags.push('<span class="info-tag">' + escapeHtml(a.releaseNotes) + '</span>');
+    const attHtml = a.attachment && a.attachmentName
+      ? '<a class="attachment-link" href="' + a.attachment + '" target="_blank" download="' + escapeHtml(a.attachmentName) + '">📎 ' + escapeHtml(a.attachmentName) + '</a>'
+      : '';
+    return `
+    <div class="list-item past">
+      <div class="list-item-header">
+        <strong>${escapeHtml(name)}</strong>
+        ${a.severity ? '<span style="color:var(--text-dim);font-size:0.8rem">' + escapeHtml(a.severity) + '</span>' : ''}
+      </div>
+      <div>${escapeHtml(reason || '-')}</div>
+      <div class="info-row" style="margin-top:10px">${tags.join('')}</div>
+      ${a.notes ? '<div class="list-item-meta">' + escapeHtml(a.notes) + '</div>' : ''}
+      ${attHtml ? '<div class="list-item-meta">' + attHtml + '</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function showAddWantedModal() {
+  document.getElementById('wantedName').value = '';
+  document.getElementById('wantedDetails').value = '';
+  document.getElementById('wantedSeverity').value = 'Medium';
+  document.getElementById('wantedMostWanted').value = '0';
+  document.getElementById('wantedLastSeen').value = '';
+  document.getElementById('wantedReward').value = '';
+  document.getElementById('wantedAssociates').value = '';
+  document.getElementById('wantedTags').value = '';
+  document.getElementById('modalAddWanted').classList.remove('hidden');
+}
+
+function submitWanted() {
+  const name = document.getElementById('wantedName').value.trim();
+  const details = document.getElementById('wantedDetails').value.trim();
+  const severity = document.getElementById('wantedSeverity').value;
+  const mostWanted = document.getElementById('wantedMostWanted').value === '1';
+  const lastSeen = document.getElementById('wantedLastSeen').value.trim();
+  const reward = document.getElementById('wantedReward').value.trim();
+  const associates = document.getElementById('wantedAssociates').value.trim();
+  const tags = document.getElementById('wantedTags').value.trim().split(/[,\s]+/).filter(Boolean);
+
+  if (!name) return alert('Enter name');
+
+  const arr = getWanted();
+  arr.push({
+    id: Date.now(),
+    name, details, severity, mostWanted, lastSeen, reward, associates, tags,
+    addedBy: currentUser.name,
+    date: new Date().toISOString()
+  });
+  saveWanted(arr);
+  closeModal('modalAddWanted');
+  renderWanted();
+  updateWantedStats();
+  updateStats();
+  addActivityLog('Wanted added', name + ' (Severity: ' + severity + ', Most Wanted: ' + mostWanted + ')');
+}
+
+function updateWantedStats() {
+  const arr = getWanted();
+  const most = arr.filter(w => w.mostWanted).length;
+  if (document.getElementById('statMostWanted')) document.getElementById('statMostWanted').textContent = most;
+  if (document.getElementById('statWantedCount')) document.getElementById('statWantedCount').textContent = arr.length;
+}
+
+function removeWanted(i) {
+  if (!confirm('Remove from wanted list?')) return;
+  const arr = getWanted();
+  const name = arr[i].name;
+  arr.splice(i, 1);
+  saveWanted(arr);
+  renderWanted();
+  updateWantedStats();
+  updateStats();
+  addActivityLog('Wanted removed', name);
+}
+
+function filterWanted() {
+  const q = document.getElementById('searchWanted') ? document.getElementById('searchWanted').value : '';
+  const sev = document.getElementById('wantedFilterSeverity') ? document.getElementById('wantedFilterSeverity').value : '';
+  renderWanted(q, sev);
+}
+
+function renderWanted(filter = '', severityFilter = '') {
+  const arr = getWanted();
+  const q = filter.toLowerCase();
+  const mostWanted = arr.filter(w => w.mostWanted);
+  const allWanted = q ? arr.filter(w => w.name.toLowerCase().includes(q)) : arr;
+  const filtered = severityFilter ? allWanted.filter(w => w.severity === severityFilter) : allWanted;
+
+  const elMost = document.getElementById('mostWantedList');
+  const el = document.getElementById('wantedList');
+  const canRemove = ['Dev', 'Chief'].includes(currentUser.rank);
+
+  if (elMost) elMost.innerHTML = mostWanted.length ? mostWanted.map(w => {
+    const idx = arr.indexOf(w);
+    return `<div class="list-item wanted" style="border-left-width:6px"><div class="list-item-header"><strong>${escapeHtml(w.name)}</strong><span class="info-tag" style="color:var(--danger)">MOST WANTED</span></div><div>${escapeHtml(w.details || '-')}</div><div class="info-row">${escapeHtml(w.severity || '-')} | Last seen: ${escapeHtml(w.lastSeen || '-')}${w.reward ? ' | Reward: $' + escapeHtml(w.reward) : ''}</div>${canRemove ? `<button class="btn btn-danger btn-sm" onclick="removeWanted(${idx})">Remove</button>` : ''}</div>`;
+  }).join('') : '<div class="empty-state">No most wanted</div>';
+
+  if (el) {
+    if (filtered.length === 0) {
+      el.innerHTML = '<div class="empty-state">No one on wanted list.</div>';
+      return;
+    }
+    el.innerHTML = filtered.map(w => {
+      const idx = arr.indexOf(w);
+      return `<div class="list-item wanted"><div class="list-item-header"><strong>${escapeHtml(w.name)}</strong><span class="info-tag">${escapeHtml(w.severity || '-')}</span></div><div>${escapeHtml(w.details || '-')}</div><div class="info-row"><span class="info-tag">Added by ${escapeHtml(w.addedBy)}</span><span class="info-tag">${formatDate(w.date)}</span>${w.lastSeen ? '<span class="info-tag">Last: ' + escapeHtml(w.lastSeen) + '</span>' : ''}</div>${canRemove ? `<div class="list-item-actions"><button class="btn btn-danger btn-sm" onclick="removeWanted(${idx})">Remove</button></div>` : ''}</div>`;
+    }).join('');
+  }
+}
+
+function showAddUserModal() {
+  document.getElementById('modalUserTitle').textContent = 'Create Account';
+  document.getElementById('newUserUsername').value = '';
+  document.getElementById('newUserUsername').readOnly = false;
+  document.getElementById('newUserPassword').value = '';
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserRank').value = 'Officer';
+  document.getElementById('modalAddUser').classList.remove('hidden');
+}
+
+function editUser(username) {
+  const users = getUsers();
+  const u = users[username];
+  if (!u) return;
+  document.getElementById('modalUserTitle').textContent = 'Edit Account';
+  document.getElementById('newUserUsername').value = u.username;
+  document.getElementById('newUserUsername').readOnly = true;
+  document.getElementById('newUserPassword').value = '';
+  document.getElementById('newUserName').value = u.name;
+  document.getElementById('newUserRank').value = u.rank === 'Dev' ? 'Chief' : u.rank;
+  document.getElementById('newUserRank').disabled = u.rank === 'Dev';
+  document.getElementById('modalAddUser').classList.remove('hidden');
+}
+
+async function submitUser() {
+  const username = document.getElementById('newUserUsername').value.trim().toLowerCase();
+  const password = document.getElementById('newUserPassword').value;
+  const name = document.getElementById('newUserName').value.trim();
+  const rank = document.getElementById('newUserRank').value;
+
+  if (!username || !name) return alert('Enter username and full name');
+
+  const users = getUsers();
+  const isEdit = users[username] && document.getElementById('newUserUsername').readOnly;
+
+  if (!isEdit && !password) return alert('Enter password for new account');
+  if (username === DEV_USER && rank !== 'Dev') return alert('Cannot change dev account rank');
+
+  let pwStore = users[username] ? (users[username].passwordHash || users[username].password) : null;
+  if (password) pwStore = await sha256(password);
+
+  users[username] = {
+    username,
+    passwordHash: pwStore,
+    name,
+    rank: username === DEV_USER ? 'Dev' : rank
+  };
+  if (users[username].password) delete users[username].password;
+  saveUsers(users);
+  closeModal('modalAddUser');
+  renderUsersTable();
+}
+
+function deleteUser(username) {
+  if (username === DEV_USER) return alert('Cannot delete dev account');
+  if (!confirm('Delete this account?')) return;
+  const users = getUsers();
+  delete users[username];
+  saveUsers(users);
+  renderUsersTable();
+}
+
+function renderUsersTable() {
+  const users = getUsers();
+  const tbody = document.getElementById('usersTableBody');
+  const rows = Object.values(users).map(u => `
+    <tr>
+      <td>${escapeHtml(u.username)}</td>
+      <td>${escapeHtml(u.name)}</td>
+      <td>${escapeHtml(u.rank)}</td>
+      <td class="actions">
+        <button class="btn btn-secondary btn-sm" onclick="editUser('${escapeHtml(u.username)}')">Edit</button>
+        ${u.rank !== 'Dev' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${escapeHtml(u.username)}')">Delete</button>` : ''}
+      </td>
+    </tr>`).join('');
+  tbody.innerHTML = rows || '<tr><td colspan="4" class="empty-state">No accounts yet</td></tr>';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function toggleTheme() {
+  const t = getTheme() === 'dark' ? 'light' : 'dark';
+  setTheme(t);
+  document.body.classList.toggle('light-mode', t === 'light');
+}
+
+function doGlobalSearch() {
+  const q = (document.getElementById('globalSearch') || {}).value.trim().toLowerCase();
+  const el = document.getElementById('globalSearchResults');
+  if (!el) return;
+  if (!q) { el.classList.add('hidden'); return; }
+  const results = [];
+  getArrested().forEach(a => { const n = (a.person || a.name || '').toLowerCase(); if (n.includes(q)) results.push({ type: 'Arrest', name: a.person || a.name, text: a.reason || a.charges }); });
+  getPastArrested().forEach(a => { const n = (a.person || a.name || '').toLowerCase(); if (n.includes(q)) results.push({ type: 'Past', name: a.person || a.name, text: a.reason || a.charges }); });
+  getWanted().forEach(w => { if (w.name.toLowerCase().includes(q)) results.push({ type: 'Wanted', name: w.name, text: w.details }); });
+  el.innerHTML = results.slice(0, 10).map(r => `<div class="feed-item" style="cursor:pointer" data-name="${escapeHtml(r.name)}" data-type="${r.type}" onclick="globalSearchSelect(this)"><span class="info-tag">${r.type}</span> ${escapeHtml(r.name)} — ${escapeHtml((r.text || '').slice(0, 50))}</div>`).join('') || '<div class="empty-state">No results</div>';
+  el.classList.remove('hidden');
+}
+document.addEventListener('click', (e) => { const el = document.getElementById('globalSearchResults'); if (el && !e.target.closest('.global-search')) el.classList.add('hidden'); });
+function globalSearchSelect(el) { const name = el.dataset.name; document.getElementById('globalSearch').value = name; document.getElementById('globalSearchResults').classList.add('hidden'); switchTab(el.dataset.type === 'Wanted' ? 'wanted' : el.dataset.type === 'Arrest' ? 'arrested' : 'pastArrested'); }
+
+function showAdminSection(s) {
+  document.querySelectorAll('.admin-subnav button').forEach(b => b.classList.toggle('active', b.dataset.admin === s));
+  ['users','settings','bulletins','bolo','charges','arrestreasons','backup','activity','password','presetcars'].forEach(id => {
+    const el = document.getElementById('admin' + id.charAt(0).toUpperCase() + id.slice(1));
+    if (el) el.classList.toggle('hidden', id !== s);
+  });
+  if (s === 'settings') { const st = getSettings(); document.getElementById('settingDeptName').value = st.deptName || ''; document.getElementById('settingDefaultDuration').value = st.defaultDuration || 5; }
+  if (s === 'bulletins') renderAdminBulletins();
+  if (s === 'bolo') renderAdminBolo();
+  if (s === 'charges') renderAdminCharges();
+  if (s === 'arrestreasons') renderAdminArrestReasons();
+  if (s === 'activity') renderActivityLog();
+  if (s === 'presetcars') { renderAdminPresetCars(); renderAssignCars(); }
+}
+function saveSettings() {
+  const s = getSettings();
+  s.deptName = document.getElementById('settingDeptName').value.trim() || 'Police PDA';
+  s.defaultDuration = parseInt(document.getElementById('settingDefaultDuration').value, 10) || 5;
+  saveSettingsData(s);
+  const t = document.getElementById('headerTitle'); if (t) t.textContent = s.deptName;
+  addActivityLog('Settings updated', s.deptName);
+}
+
+function showAddBulletinModal() { document.getElementById('bulletinTitle').value = ''; document.getElementById('bulletinText').value = ''; document.getElementById('modalAddBulletin').classList.remove('hidden'); }
+function submitBulletin() {
+  const bulletins = getBulletins();
+  bulletins.push({ id: Date.now(), title: document.getElementById('bulletinTitle').value.trim(), date: new Date().toISOString().slice(0,10), text: document.getElementById('bulletinText').value.trim() });
+  saveBulletins(bulletins);
+  closeModal('modalAddBulletin');
+  renderAdminBulletins();
+  renderBulletins();
+}
+function deleteBulletin(i) { 
+  const b = getBulletins(); 
+  b.splice(i,1); 
+  saveBulletins(b); 
+  renderAdminBulletins(); 
+  renderBulletins(); 
+}
+function deleteBolo(i) { 
+  const b = getBolo(); 
+  b.splice(i,1); 
+  saveBolo(b); 
+  renderAdminBolo(); 
+  renderBolo(); 
+}
+function deleteCharge(i) { 
+  const c = getChargeTemplates(); 
+  c.splice(i,1); 
+  saveChargeTemplates(c); 
+  renderAdminCharges(); 
+}
+function deletePresetCar(i) { 
+  const c = getPresetCars(); 
+  c.splice(i,1); 
+  savePresetCars(c); 
+  renderAdminPresetCars(); 
+  renderAssignCars(); 
+}
+
+function renderAdminBulletins() {
+  const arr = getBulletins();
+  document.getElementById('adminBulletinList').innerHTML = arr.map((b,i) => `<div class="list-item"><strong>${escapeHtml(b.title)}</strong> — ${escapeHtml(b.text)} <button class="btn btn-danger btn-sm" onclick="deleteBulletin(${i})">Delete</button></div>`).join('') || '<div class="empty-state">No bulletins</div>';
+}
+function showAddBoloModal() { document.getElementById('boloName').value = ''; document.getElementById('boloDetails').value = ''; document.getElementById('modalAddBolo').classList.remove('hidden'); }
+function submitBolo() {
+  const bolo = getBolo();
+  bolo.push({ name: document.getElementById('boloName').value.trim(), details: document.getElementById('boloDetails').value.trim() });
+  saveBolo(bolo);
+  closeModal('modalAddBolo');
+  renderAdminBolo();
+  renderBolo();
+}
+function renderAdminBolo() {
+  const arr = getBolo();
+  document.getElementById('adminBoloList').innerHTML = arr.map((b,i) => `<div class="list-item"><strong>${escapeHtml(b.name)}</strong> — ${escapeHtml(b.details)} <button class="btn btn-danger btn-sm" onclick="deleteBolo(${i})">Delete</button></div>`).join('') || '<div class="empty-state">No BOLOs</div>';
+}
+function showAddChargeModal() { document.getElementById('chargeName').value = ''; document.getElementById('modalAddCharge').classList.remove('hidden'); }
+function submitCharge() {
+  const arr = getChargeTemplates();
+  arr.push(document.getElementById('chargeName').value.trim());
+  saveChargeTemplates(arr);
+  closeModal('modalAddCharge');
+  renderAdminCharges();
+}
+function renderAdminCharges() {
+  const arr = getChargeTemplates();
+  document.getElementById('adminChargeList').innerHTML = arr.map((c,i) => `<div class="list-item">${escapeHtml(c)} <button class="btn btn-danger btn-sm" onclick="deleteCharge(${i})">Delete</button></div>`).join('') || '<div class="empty-state">No charges</div>';
+}
+function showAddArrestReasonModal() { document.getElementById('arrestReasonName').value = ''; document.getElementById('modalAddArrestReason').classList.remove('hidden'); }
+function submitArrestReason() {
+  const arr = getArrestReasons();
+  const reason = document.getElementById('arrestReasonName').value.trim();
+  if (!reason) return alert('Enter reason name');
+  if (arr.includes(reason)) return alert('Reason already exists');
+  arr.push(reason);
+  saveArrestReasons(arr);
+  closeModal('modalAddArrestReason');
+  renderAdminArrestReasons();
+}
+function renderAdminArrestReasons() {
+  const arr = getArrestReasons();
+  const el = document.getElementById('adminArrestReasonsList');
+  if (!el) return;
+  el.innerHTML = arr.map((r,i) => `<div class="list-item">${escapeHtml(r)} <button class="btn btn-danger btn-sm" onclick="deleteArrestReason(${i})">Delete</button></div>`).join('') || '<div class="empty-state">No arrest reasons</div>';
+}
+function deleteArrestReason(i) { 
+  if (!confirm('Delete this arrest reason?')) return;
+  const arr = getArrestReasons(); 
+  arr.splice(i,1); 
+  saveArrestReasons(arr); 
+  renderAdminArrestReasons();
+}
+function exportData() {
+  const data = { users: getUsers(), arrested: getArrested(), pastArrested: getPastArrested(), wanted: getWanted(), vehicles: getVehicles(), incidents: getIncidents(), bulletins: getBulletins(), bolo: getBolo(), chargeTemplates: getChargeTemplates(), arrestReasons: getArrestReasons(), settings: getSettings(), dutyStatus: getDutyStatus(), presetCars: getPresetCars(), officerCars: getOfficerCarAssignments(), publicNotes: getPublicNotes(), activityLog: getActivityLog() };
+  const a = document.createElement('a'); a.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(data)); a.download = 'police-pda-backup-' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+  addActivityLog('Backup exported', '');
+}
+function importData() {
+  const inp = document.getElementById('importFile');
+  if (!inp.files || !inp.files[0]) return;
+  const r = new FileReader();
+  r.onload = () => { try { const d = JSON.parse(r.result); if (d.users) saveUsers(d.users); if (d.arrested) saveArrested(d.arrested); if (d.pastArrested) savePastArrested(d.pastArrested); if (d.wanted) saveWanted(d.wanted); if (d.vehicles) saveVehicles(d.vehicles); if (d.incidents) saveIncidents(d.incidents); if (d.bulletins) saveBulletins(d.bulletins); if (d.bolo) saveBolo(d.bolo); if (d.chargeTemplates) saveChargeTemplates(d.chargeTemplates); if (d.arrestReasons) saveArrestReasons(d.arrestReasons); if (d.settings) saveSettingsData(d.settings); if (d.dutyStatus) saveDutyStatus(d.dutyStatus); if (d.presetCars) savePresetCars(d.presetCars); if (d.officerCars) saveOfficerCarAssignments(d.officerCars); if (d.publicNotes) savePublicNotes(d.publicNotes); if (d.activityLog) localStorage.setItem(storageKey('activityLog'), JSON.stringify(d.activityLog)); addActivityLog('Data imported', 'Backup restored'); alert('Import complete'); location.reload(); } catch(e) { alert('Invalid file'); } };
+  r.readAsText(inp.files[0]);
+}
+function resetAllData() {
+  if (!confirm('Reset ALL data? Arrests, wanted, vehicles, incidents, bulletins, BOLO. Users kept.')) return;
+  saveArrested([]); savePastArrested([]); saveWanted([]); saveVehicles([]); saveIncidents([]); saveBolo([]);
+  addActivityLog('Data reset', '');
+  alert('Data reset'); location.reload();
+}
+
+function renderActivityLog() {
+  const log = getActivityLog();
+  document.getElementById('activityLogList').innerHTML = log.slice(0, 200).map(l => {
+    const ipDisplay = l.ip ? `<span class="info-tag" title="IP: ${l.ip}">${escapeHtml(l.ip)}</span>` : '<span class="info-tag" title="IP not available">No IP</span>';
+    const userDisplay = l.user !== '?' ? escapeHtml(l.user) : '<span class="info-tag">Unknown User</span>';
+    return `<div class="feed-item">
+      <span class="info-tag">${formatDate(l.date)}</span>
+      ${ipDisplay}
+      ${userDisplay} (${escapeHtml(l.username || '?')}): ${escapeHtml(l.action)} — ${escapeHtml(l.details || '')}
+    </div>`;
+  }).join('') || '<div class="empty-state">No activity</div>';
+}
+function exportLog() {
+  const log = getActivityLog();
+  const a = document.createElement('a'); a.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(log, null, 2)); a.download = 'pda-log-' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+}
+
+async function changeDevPassword() {
+  const pw = document.getElementById('newDevPassword').value;
+  if (!pw || pw.length < 6) return alert('Password min 6 chars');
+  const users = getUsers();
+  users[DEV_USER].passwordHash = await sha256(pw);
+  saveUsers(users);
+  document.getElementById('newDevPassword').value = '';
+  addActivityLog('Dev password changed', '');
+  alert('Password changed');
+}
+
+function showAddVehicleModal() { document.getElementById('vehiclePlate').value = ''; document.getElementById('vehicleMake').value = ''; document.getElementById('vehicleModel').value = ''; document.getElementById('vehicleColor').value = ''; document.getElementById('vehicleStatus').value = 'Stolen'; document.getElementById('vehicleNotes').value = ''; document.getElementById('modalAddVehicle').classList.remove('hidden'); }
+function submitVehicle() {
+  const v = { id: Date.now(), plate: document.getElementById('vehiclePlate').value.trim(), make: document.getElementById('vehicleMake').value.trim(), model: document.getElementById('vehicleModel').value.trim(), color: document.getElementById('vehicleColor').value.trim(), status: document.getElementById('vehicleStatus').value, notes: document.getElementById('vehicleNotes').value.trim(), addedBy: currentUser.name, date: new Date().toISOString() };
+  if (!v.plate) return alert('Enter plate');
+  const arr = getVehicles();
+  arr.push(v);
+  saveVehicles(arr);
+  closeModal('modalAddVehicle');
+  renderVehicles();
+  addActivityLog('Vehicle added', v.plate + ' — ' + v.status);
+}
+function filterVehicles() { renderVehicles(document.getElementById('searchVehicles').value); }
+function renderVehicles(q = '') {
+  const arr = getVehicles();
+  const filtered = q ? arr.filter(v => (v.plate || '').toLowerCase().includes(q.toLowerCase())) : arr;
+  document.getElementById('vehicleList').innerHTML = filtered.length ? filtered.map(v => `<div class="list-item"><strong>${escapeHtml(v.plate)}</strong> — ${escapeHtml(v.make)} ${escapeHtml(v.model)} ${escapeHtml(v.color)} | ${escapeHtml(v.status)}</div>`).join('') : '<div class="empty-state">No vehicles</div>';
+}
+
+function showAddIncidentModal() { document.getElementById('incidentType').value = 'Traffic Stop'; document.getElementById('incidentLocation').value = ''; document.getElementById('incidentDesc').value = ''; document.getElementById('incidentStatus').value = 'Open'; document.getElementById('modalAddIncident').classList.remove('hidden'); }
+function submitIncident() {
+  const i = { id: Date.now(), type: document.getElementById('incidentType').value, location: document.getElementById('incidentLocation').value.trim(), desc: document.getElementById('incidentDesc').value.trim(), status: document.getElementById('incidentStatus').value, by: currentUser.name, date: new Date().toISOString() };
+  const arr = getIncidents();
+  arr.unshift(i);
+  saveIncidents(arr);
+  closeModal('modalAddIncident');
+  renderIncidents();
+  addActivityLog('Incident added', i.type + ' — ' + i.location);
+}
+function renderIncidents() {
+  const arr = getIncidents();
+  document.getElementById('incidentList').innerHTML = arr.length ? arr.map(i => `<div class="list-item"><strong>${escapeHtml(i.type)}</strong> — ${escapeHtml(i.location)} | ${escapeHtml(i.status)}<br><span class="list-item-meta">${escapeHtml(i.desc || '-')} · ${formatDate(i.date)}</span></div>`).join('') : '<div class="empty-state">No incidents</div>';
+}
+
+function saveUserNotes() { saveUserNotesData(); }
+
+function addPublicNote() {
+  const ta = document.getElementById('userNotesPublic');
+  const text = ta.value.trim();
+  if (!text) return;
+  const notes = getPublicNotes();
+  notes.unshift({ text, author: currentUser.name, date: new Date().toISOString() });
+  savePublicNotes(notes);
+  ta.value = '';
+  renderPublicNotes();
+}
+function renderPublicNotes() {
+  const notes = getPublicNotes();
+  const list = document.getElementById('publicNotesList');
+  if (!list) return;
+  list.innerHTML = notes.length ? notes.map(n => `<div class="list-item" style="margin-bottom:8px"><div>${escapeHtml(n.text)}</div><span class="list-item-meta">${escapeHtml(n.author)} · ${formatDate(n.date)}</span></div>`).join('') : '<div class="empty-state">No public notes</div>';
+}
+function showAddPresetCarModal() {
+  document.getElementById('presetPlate').value = '';
+  document.getElementById('presetMake').value = '';
+  document.getElementById('presetModel').value = '';
+  document.getElementById('presetColor').value = '';
+  document.getElementById('presetUnit').value = '';
+  document.getElementById('modalAddPresetCar').classList.remove('hidden');
+}
+function submitPresetCar() {
+  const car = { id: Date.now(), plate: document.getElementById('presetPlate').value.trim(), make: document.getElementById('presetMake').value.trim(), model: document.getElementById('presetModel').value.trim(), color: document.getElementById('presetColor').value.trim(), unit: document.getElementById('presetUnit').value.trim() };
+  if (!car.plate) return alert('Enter plate');
+  const arr = getPresetCars();
+  arr.push(car);
+  savePresetCars(arr);
+  closeModal('modalAddPresetCar');
+  renderAdminPresetCars();
+  renderAssignCars();
+}
+function renderAdminPresetCars() {
+  const arr = getPresetCars();
+  const el = document.getElementById('presetCarsList');
+  if (!el) return;
+  el.innerHTML = arr.length ? arr.map((c,i) => `<div class="list-item">${escapeHtml(c.plate)} — ${escapeHtml(c.make)} ${escapeHtml(c.model)} ${escapeHtml(c.color)} ${c.unit ? 'Unit ' + escapeHtml(c.unit) : ''} <button class="btn btn-danger btn-sm" onclick="deletePresetCar(${i})">Delete</button></div>`).join('') : '<div class="empty-state">No preset cars</div>';
+}
+function renderAssignCars() {
+  const users = getUsers();
+  const presets = getPresetCars();
+  const assignments = getOfficerCarAssignments();
+  const el = document.getElementById('assignCarsList');
+  if (!el) return;
+  el.innerHTML = Object.values(users).filter(u => u.rank !== 'Dev').map(u => {
+    const current = assignments[u.username] || '';
+    return `<div class="list-item" style="margin-bottom:8px"><strong>${escapeHtml(u.name)}</strong> (${escapeHtml(u.rank)}) — <select class="search-box" style="display:inline-block;width:auto;margin:0 8px" onchange="assignCarToOfficer('${escapeHtml(u.username)}', this.value)"><option value="">— No car —</option>${presets.map(p => `<option value="${escapeHtml(p.plate)}" ${current === p.plate ? 'selected' : ''}>${escapeHtml(p.plate)} (${escapeHtml(p.make)} ${escapeHtml(p.model)})</option>`).join('')}</select></div>`;
+  }).join('') || '<div class="empty-state">No officers</div>';
+}
+function assignCarToOfficer(username, plate) {
+  const a = getOfficerCarAssignments();
+  if (plate) a[username] = plate; else delete a[username];
+  saveOfficerCarAssignments(a);
+}
+
+const RADIO_CODES = [
+  ['10-4', 'Acknowledged'], ['10-20', 'Location'], ['10-33', 'Emergency'], ['10-50', 'Accident'], ['10-99', 'Officer down'],
+  ['10-10', 'Fight'], ['10-32', 'Person with gun'], ['10-71', 'Shooting'], ['Code 3', 'Emergency response'], ['Code 4', 'No further assistance']
+];
+function renderRadioCodes() { document.getElementById('radioCodesList').innerHTML = RADIO_CODES.map(([c,d]) => `<div class="list-item"><strong>${c}</strong> — ${d}</div>`).join(''); }
+
+function renderStatistics() {
+  const arrested = getArrested();
+  const past = getPastArrested();
+  const wanted = getWanted();
+  const vehicles = getVehicles();
+  const incidents = getIncidents();
+  const byOfficer = {};
+  past.forEach(a => { const o = a.arrestedBy || '?'; byOfficer[o] = (byOfficer[o] || 0) + 1; });
+  const top = Object.entries(byOfficer).sort((a,b) => b[1] - a[1]).slice(0, 10);
+  const ids = ['statCardArrested','statCardPast','statCardWanted','statCardMostWanted','statCardVehicles','statCardIncidents'];
+  const vals = [arrested.length, past.length, wanted.length, wanted.filter(w=>w.mostWanted).length, vehicles.length, incidents.length];
+  ids.forEach((id,i) => { const el = document.getElementById(id); if (el) el.textContent = vals[i]; });
+  const topEl = document.getElementById('statsTopOfficers');
+  if (topEl) topEl.innerHTML = top.length ? top.map(([n,c],i) => `<div class="stat-top-row"><span class="stat-rank">#${i+1}</span><span class="stat-name">${escapeHtml(n)}</span><span class="stat-count">${c} arrests</span></div>`).join('') : '<div class="empty-state">No data yet</div>';
+  document.getElementById('statsContent').innerHTML = `
+    <p>Total Arrests (past): <strong>${past.length}</strong></p>
+    <p>Currently in custody: <strong>${arrested.length}</strong></p>
+    <p>Wanted: <strong>${wanted.length}</strong> (Most Wanted: ${wanted.filter(w=>w.mostWanted).length})</p>
+    <p>Top officers: ${top.map(([n,c]) => escapeHtml(n) + ' (' + c + ')').join(', ') || '-'}</p>
+  `;
+}
+
+// Log page access when someone visits the site
+async function logPageAccess() {
+  try {
+    const ip = await fetchIP();
+    addActivityLog('Page accessed', 'Landing page viewed', ip);
+  } catch (error) {
+    addActivityLog('Page accessed', 'Landing page viewed', 'unknown');
+  }
+}
+
+// Initialize page access logging
+document.addEventListener('DOMContentLoaded', () => {
+  logPageAccess();
+});
+</script>
+
+</body>
+</html>
